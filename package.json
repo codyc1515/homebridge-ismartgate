@@ -1,0 +1,33 @@
+{
+  "name": "homebridge-ismartgate",
+  "version": "1.0.0",
+  "description": "Homebridge plug-in for iSmartGate HomeKit devices to expose their Temperature & Battery services, which would otherwise be hidden.",
+  "main": "index.js",
+  "dependencies": {
+    "request": "^2.88.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codyc1515/homebridge-ismartgate.git"
+  },
+  "keywords": [
+    "homebridge-plugin",
+    "homekit",
+    "ismartgate",
+    "gogogate",
+    "garage",
+    "door",
+    "temperature",
+    "battery"
+  ],
+  "author": "codyc1515",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/codyc1515/homebridge-ismartgate/issues"
+  },
+  "homepage": "https://github.com/codyc1515/homebridge-ismartgate#readme"
+}

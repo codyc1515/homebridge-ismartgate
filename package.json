@@ -1,6 +1,6 @@
 {
   "name": "homebridge-ismartgate",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Homebridge plug-in for iSmartGate HomeKit devices to expose their Temperature & Battery services, which would otherwise be hidden.",
   "main": "index.js",
   "dependencies": {

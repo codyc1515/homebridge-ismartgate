@@ -1,23 +1,45 @@
 {
-  "name": "homebridge-ismartgate",
-  "version": "1.0.1",
-  "description": "Homebridge plug-in for iSmartGate HomeKit devices to expose their Temperature & Battery services, which would otherwise be hidden.",
-  "main": "index.js",
+  "_from": "homebridge-ismartgate",
+  "_id": "homebridge-ismartgate@1.0.1",
+  "_inBundle": false,
+  "_integrity": "sha512-aIExCpltsnvRvYHTQzNrGD3+XJSBWR5nfrJ8mRv8Vmini7S37+/b9rU9siT13ZXvezI7MVw8zxkHgy+CPgafHw==",
+  "_location": "/homebridge-ismartgate",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "homebridge-ismartgate",
+    "name": "homebridge-ismartgate",
+    "escapedName": "homebridge-ismartgate",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "https://registry.npmjs.org/homebridge-ismartgate/-/homebridge-ismartgate-1.0.1.tgz",
+  "_shasum": "03547754bb080b5bbc0891d06232ec79e52cd7c0",
+  "_spec": "homebridge-ismartgate",
+  "_where": "/home/homebridge",
+  "author": {
+    "name": "codyc1515"
+  },
+  "bugs": {
+    "url": "https://github.com/codyc1515/homebridge-ismartgate/issues"
+  },
+  "bundleDependencies": false,
   "dependencies": {
     "request": "^2.88.0"
   },
+  "deprecated": false,
+  "description": "Homebridge plug-in for iSmartGate HomeKit devices to expose their Temperature & Battery services, which would otherwise be hidden.",
+  "devDependencies": {},
   "engines": {
     "homebridge": ">=0.4.0",
     "node": ">=8.6.0"
   },
-  "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/codyc1515/homebridge-ismartgate.git"
-  },
+  "homepage": "https://github.com/codyc1515/homebridge-ismartgate#readme",
   "keywords": [
     "homebridge-plugin",
     "homekit",
@@ -28,10 +50,15 @@
     "temperature",
     "battery"
   ],
-  "author": "codyc1515",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/codyc1515/homebridge-ismartgate/issues"
+  "main": "index.js",
+  "name": "homebridge-ismartgate",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codyc1515/homebridge-ismartgate.git"
   },
-  "homepage": "https://github.com/codyc1515/homebridge-ismartgate#readme"
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.1.0"
 }

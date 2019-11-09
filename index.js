@@ -19,6 +19,7 @@ function iSmartGate(log, config) {
     this.hostname = config["hostname"];
     this.username = config["username"];
     this.password = config["password"];
+    this.response = null;
     this.debug = config["debug"] || false;
 
     this.CurrentTemperature = null;
@@ -38,48 +39,14 @@ function iSmartGate(log, config) {
             if (!err && response.statusCode == 200) {
                 this.log("Logged into iSmartGate");
 
-                setInterval(function() {
-                    request.get({
-                        url: "http://" + config["hostname"] + "/isg/temperature.php?door=1",
-                        header: response.headers,
-                        jar: cookieJar
-                    }, function(err, response, body) {
-                        if (!err && response.statusCode == 200) {
-                            try {
-                                body = JSON.parse(body);
-                            }
-                            catch {this.log("Could not process iSmartGate temperature. Check http://" + config["hostname"] + " and make sure the device is still reachable and no captcha is showing.");}
+                // Save the login headers
+                this.response = response;
 
-                            if(this.debug) {this.log("Obtained temperature", body);}
+                // Get the data initially
+                this._refresh();
 
-                            // Set the CurrentTemperature
-                            this.CurrentTemperature = body[0] / 1000;
-                            this.TemperatureSensor.getCharacteristic(Characteristic.CurrentTemperature).updateValue(this.CurrentTemperature);
-
-                            // Set the BatteryLevel
-                            switch (body[1]) {
-                                case "full":    this.BatteryLevel = 100;    break;
-                                case "80":      this.BatteryLevel = 80;     break;
-                                case "60":      this.BatteryLevel = 60;     break;
-                                case "40":      this.BatteryLevel = 40;     break;
-                                case "20":      this.BatteryLevel = 20;     break;
-                                case "low":     this.BatteryLevel = 10;     break;
-
-                                default:
-                                    this.log("Unknown BatteryLevel detected", body[1], body);
-
-                                    this.BatteryLevel = 0;
-                                break;
-                            }
-
-                            if(this.BatteryLevel <= 10) {this.BatteryService.setCharacteristic(Characteristic.StatusLowBattery, Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW);}
-                            else {this.BatteryService.setCharacteristic(Characteristic.StatusLowBattery, Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL);}
-
-                            this.BatteryService.setCharacteristic(Characteristic.BatteryLevel, this.BatteryLevel);
-                        }
-                        else {this.log("Failed to get iSmartGate temperature", err, response, body);}
-                    }.bind(this));
-                }.bind(this), 5000);
+                // Refresh periodically
+                setInterval(function() {this._refresh();}.bind(this), 5000);
             }
             else {this.log("Failed to login to iSmartGate", err, response, body);}
         }.bind(this));
@@ -92,6 +59,51 @@ iSmartGate.prototype = {
     identify: function(callback) {
         this.log("identify");
         callback();
+    },
+
+    _refresh: function() {
+        if(this.debug) {this.log("Refresh temperature & battery");}
+
+        request.get({
+            url: "http://" + this.hostname + "/isg/temperature.php?door=1",
+            header: this.response.headers,
+            jar: cookieJar
+        }, function(err, response, body) {
+            if (!err && response.statusCode == 200) {
+                try {body = JSON.parse(body);}
+                catch {this.log("Could not process iSmartGate temperature. Check http://" + this.hostname + " and make sure the device is still reachable and no captcha is showing.");}
+
+                if(this.debug) {this.log("Obtained temperature", body);}
+
+                // Find & set the CurrentTemperature
+                this.CurrentTemperature = body[0] / 1000;
+                this.TemperatureSensor.getCharacteristic(Characteristic.CurrentTemperature).updateValue(this.CurrentTemperature);
+
+                // Find the BatteryLevel
+                switch (body[1]) {
+                    case "full":    this.BatteryLevel = 100;    break;
+                    case "80":      this.BatteryLevel = 80;     break;
+                    case "60":      this.BatteryLevel = 60;     break;
+                    case "40":      this.BatteryLevel = 40;     break;
+                    case "20":      this.BatteryLevel = 20;     break;
+                    case "low":     this.BatteryLevel = 10;     break;
+
+                    default:
+                        this.log("Unknown BatteryLevel detected", body[1], body);
+
+                        this.BatteryLevel = 0;
+                    break;
+                }
+
+                // Set the Status Low Battery
+                if(this.BatteryLevel <= 10) {this.BatteryService.setCharacteristic(Characteristic.StatusLowBattery, Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW);}
+                else {this.BatteryService.setCharacteristic(Characteristic.StatusLowBattery, Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL);}
+
+                // Set the Battery Level
+                this.BatteryService.setCharacteristic(Characteristic.BatteryLevel, this.BatteryLevel);
+            }
+            else {this.log("Failed to get iSmartGate temperature", err, response, body);}
+        }.bind(this));
     },
 
     getServices: function() {

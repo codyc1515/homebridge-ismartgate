@@ -59,11 +59,11 @@ function iSmartGate(log, config) {
                             // Set the BatteryLevel
                             switch (body[1]) {
                                 case "full":    this.BatteryLevel = 100;    break;
-                                case 80:        this.BatteryLevel = 80;    break;
-                                case 60:        this.BatteryLevel = 60;    break;
-                                case 40:        this.BatteryLevel = 40;    break;
-                                case 20:        this.BatteryLevel = 20;    break;
-                                case "low":     this.BatteryLevel = 10;    break;
+                                case "80":      this.BatteryLevel = 80;     break;
+                                case "60":      this.BatteryLevel = 60;     break;
+                                case "40":      this.BatteryLevel = 40;     break;
+                                case "20":      this.BatteryLevel = 20;     break;
+                                case "low":     this.BatteryLevel = 10;     break;
 
                                 default:
                                     this.log("Unknown BatteryLevel detected", body[1], body);

@@ -1,27 +1,27 @@
 {
-  "_from": "homebridge-ismartgate",
-  "_id": "homebridge-ismartgate@1.0.1",
+  "_from": "homebridge-ismartgate@latest",
+  "_id": "homebridge-ismartgate@1.1.0",
   "_inBundle": false,
-  "_integrity": "sha512-aIExCpltsnvRvYHTQzNrGD3+XJSBWR5nfrJ8mRv8Vmini7S37+/b9rU9siT13ZXvezI7MVw8zxkHgy+CPgafHw==",
+  "_integrity": "sha512-BnkbbLXnNHeyaH4It3Jop2qLHtY9/qQJz1oAD7WD9X0u+R2hoeYqUF3b+P4LYTgGVe6Rv0JdE1u7Fw908nH8uQ==",
   "_location": "/homebridge-ismartgate",
   "_phantomChildren": {},
   "_requested": {
     "type": "tag",
     "registry": true,
-    "raw": "homebridge-ismartgate",
+    "raw": "homebridge-ismartgate@latest",
     "name": "homebridge-ismartgate",
     "escapedName": "homebridge-ismartgate",
-    "rawSpec": "",
+    "rawSpec": "latest",
     "saveSpec": null,
     "fetchSpec": "latest"
   },
   "_requiredBy": [
     "#USER"
   ],
-  "_resolved": "https://registry.npmjs.org/homebridge-ismartgate/-/homebridge-ismartgate-1.0.1.tgz",
-  "_shasum": "03547754bb080b5bbc0891d06232ec79e52cd7c0",
-  "_spec": "homebridge-ismartgate",
-  "_where": "/home/homebridge",
+  "_resolved": "https://registry.npmjs.org/homebridge-ismartgate/-/homebridge-ismartgate-1.1.0.tgz",
+  "_shasum": "324b87bbdf8c5330a789662d54f6be180b105b25",
+  "_spec": "homebridge-ismartgate@latest",
+  "_where": "/usr/local/lib",
   "author": {
     "name": "codyc1515"
   },
@@ -60,5 +60,5 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "version": "1.1.0"
+  "version": "1.2.0"
 }

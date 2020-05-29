@@ -26,32 +26,8 @@ function iSmartGate(log, config) {
     this.BatteryLevel = null;
 
     // Log us in & start running the capture process
-    try {
-        request.post({
-            url: "http://" + config["hostname"] + "/index.php",
-            form: {
-                "login": config['username'],
-                "pass": config['password'],
-                "send-login": "Sign in"
-            },
-            jar: cookieJar
-        }, function(err, response, body) {
-            if (!err && response.statusCode == 200) {
-                this.log("Logged into iSmartGate");
-
-                // Save the login headers
-                this.response = response;
-
-                // Get the data initially
-                this._refresh();
-
-                // Refresh periodically
-                setInterval(function() {this._refresh();}.bind(this), 5000);
-            }
-            else {this.log("Failed to login to iSmartGate", err, response, body);}
-        }.bind(this));
-    }
-    catch(e) {this.log("An unknown error occured", e, );}
+    try {this._login(true);}
+    catch(err) {this.log("An unknown error occured", err);}
 }
 
 iSmartGate.prototype = {
@@ -61,8 +37,34 @@ iSmartGate.prototype = {
         callback();
     },
 
+	_login: function(firstLoad) {
+		request.post({
+			url: "http://" + this.hostname + "/index.php",
+			form: {
+				"login": this.username,
+				"pass": this.password,
+				"send-login": "Sign in"
+			},
+			jar: cookieJar
+		}, function(err, response, body) {
+			if (!err && response.statusCode == 200) {
+				this.log("Logged into iSmartGate");
+
+				// Save the login headers
+				this.response = response;
+
+				// Get the data initially
+				this._refresh();
+
+				// Refresh periodically (every minute)
+				if(firstLoad) {setInterval(function() {this._refresh();}.bind(this), 60000);}
+			}
+			else {this.log("Could not login.", err, response, body);}
+		}.bind(this));
+	},
+
     _refresh: function() {
-        if(this.debug) {this.log("Refresh temperature & battery");}
+        if(this.debug) {this.log("Start refreshing temperature & battery");}
 
         request.get({
             url: "http://" + this.hostname + "/isg/temperature.php?door=1",
@@ -71,9 +73,15 @@ iSmartGate.prototype = {
         }, function(err, response, body) {
             if (!err && response.statusCode == 200) {
                 try {body = JSON.parse(body);}
-                catch {this.log("Could not process iSmartGate temperature. Check http://" + this.hostname + " and make sure the device is still reachable and no captcha is showing.");}
+                catch(err) {
+					if(body == "Restricted Access") {
+						this.log("Login token expired, refreshing...");
+						this._login();
+					}
+					else {this.log("Could not connect.", "Check http://" + this.hostname + " to make sure the device is still reachable & no captcha is showing.");}
+				}
 
-                if(this.debug) {this.log("Obtained temperature", body);}
+                if(this.debug) {this.log("Succesfully obtained temperature.", body);}
 
                 // Find & set the CurrentTemperature
                 this.CurrentTemperature = body[0] / 1000;
@@ -89,8 +97,7 @@ iSmartGate.prototype = {
                     case "low":     this.BatteryLevel = 10;     break;
 
                     default:
-                        this.log("Unknown BatteryLevel detected", body[1], body);
-
+                        this.log("Unexpected BatteryLevel detected.", body[1], body);
                         this.BatteryLevel = 0;
                     break;
                 }
@@ -102,7 +109,7 @@ iSmartGate.prototype = {
                 // Set the Battery Level
                 this.BatteryService.setCharacteristic(Characteristic.BatteryLevel, this.BatteryLevel);
             }
-            else {this.log("Failed to get iSmartGate temperature", err, response, body);}
+            else {this.log("Could not connect.", err, response, body);}
         }.bind(this));
     },
 
@@ -124,7 +131,7 @@ iSmartGate.prototype = {
             .setCharacteristic(Characteristic.Name, this.name)
             .setCharacteristic(Characteristic.Manufacturer, "iSmartGate")
             .setCharacteristic(Characteristic.Model, "Temperature")
-            .setCharacteristic(Characteristic.FirmwareRevision, "1.0.0")
+            .setCharacteristic(Characteristic.FirmwareRevision, "1.2.0")
             .setCharacteristic(Characteristic.SerialNumber, this.hostname);
 
         return [

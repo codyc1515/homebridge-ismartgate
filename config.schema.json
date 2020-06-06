@@ -41,7 +41,17 @@
             "minLength": 1,
             "required": true
          },
-         "debug":{
+         "doors":{
+            "title":"Number of doors",
+            "type":"integer",
+            "format":"integer",
+            "placeholder": 1,
+            "description": "How many doors are configured on your iSmartGate",
+            "minimum": 1,
+            "maximum": 3,
+            "required": true
+         },
+        "debug":{
             "title":"Debug logging",
             "type":"boolean",
             "description":"Turns on additional logging (can be helpful for diagnosing issues)"
@@ -74,6 +84,16 @@
             {
                "key":"password",
                "type":"password"
+            }
+         ]
+      },
+      {
+         "type":"flex",
+         "flex-flow":"row wrap",
+         "items":[
+            {
+               "key":"doors",
+               "type":"integer"
             }
          ]
       },

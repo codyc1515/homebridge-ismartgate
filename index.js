@@ -19,11 +19,11 @@ function iSmartGate(log, config) {
     this.hostname = config["hostname"];
     this.username = config["username"];
     this.password = config["password"];
-    this.doors = config["doors"]
+    this.doors = config["doors"];
     this.response = null;
     this.debug = config["debug"] || false;
 
-    this.currentDoor = 1
+    this.currentDoor = 1;
     this.CurrentTemperatures = [];
     this.AverageTemperature = null;
     this.BatteryLevel = 100;
@@ -145,7 +145,6 @@ iSmartGate.prototype = {
         this.TemperatureSensor
             .getCharacteristic(Characteristic.CurrentTemperature)
             .on('get', this._getValue.bind(this, "CurrentTemperature"));
-
 
         this.BatteryService = new Service.BatteryService(this.name);
         this.BatteryService

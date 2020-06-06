@@ -113,13 +113,14 @@ iSmartGate.prototype = {
                     break;
                 }
                 if (this.debug) {this.log("BatteryLevel on door " + this.currentDoor + ": ", body[1], body);}
+                if (batteryLevel <= 10) {this.log("Battery level on door " + this.currentDoor + " is low.");}
+
                 if (batteryLevel < this.BatteryLevel) {
                     this.BatteryLevel = batteryLevel
                 }
 
                 // Set the Status Low Battery
                 if(this.BatteryLevel <= 10) {
-                    this.log("Battery level on door " + this.currentDoor + " is low.")
                     this.BatteryService.setCharacteristic(Characteristic.StatusLowBattery, Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW);
                 }
                 else {

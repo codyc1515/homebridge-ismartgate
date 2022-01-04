@@ -1,6 +1,5 @@
 {
   "_from": "homebridge-ismartgate@1.2.0",
-  "_id": "homebridge-ismartgate@1.2.0",
   "_inBundle": false,
   "_integrity": "sha512-dBTioBM8F/gkOnNTtiu+U+GUYi0GEdMh/03K2QdhwqXXUpPlLsLBJiZfydVvcJX1V6zbBqZ5c9/epwqJ4QN6Gg==",
   "_location": "/homebridge-ismartgate",
@@ -30,6 +29,7 @@
   },
   "bundleDependencies": false,
   "dependencies": {
+    "mdns-js": "^1.0.3",
     "request": "^2.88.0"
   },
   "deprecated": false,
@@ -60,5 +60,5 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "version": "1.3.0"
+  "version": "1.4.0"
 }

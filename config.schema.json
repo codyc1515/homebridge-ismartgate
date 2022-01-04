@@ -15,15 +15,6 @@
              "minLength": 1,
              "required": true
           },
-          "hostname":{
-             "title":"iSmartGate Hostname",
-             "type":"string",
-             "format":"string",
-             "placeholder":"ismartgate",
-             "description":"The hostname of your device (e.g. ismartgate.local) or the IP address (e.g. 192.168.1.32)",
-             "minLength": 1,
-             "required": true
-          },
           "username":{
              "title":"Username",
              "type":"string",
@@ -40,11 +31,6 @@
             "description": "Configured during device setup",
             "minLength": 1,
             "required": true
-         },
-         "debug":{
-            "title":"Debug logging",
-            "type":"boolean",
-            "description":"Turns on additional logging (can be helpful for diagnosing issues)"
          }
       }
    },
@@ -55,10 +41,6 @@
           "items":[
               {
                  "key":"name",
-                 "type":"string"
-              },
-              {
-                 "key":"hostname",
                  "type":"string"
               }
           ]
@@ -75,14 +57,6 @@
                "key":"password",
                "type":"password"
             }
-         ]
-      },
-      {
-         "type":"fieldset",
-         "title":"Advanced configuration",
-         "expandable":true,
-         "items":[
-            "debug"
          ]
       }
    ]

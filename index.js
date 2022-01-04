@@ -1,14 +1,18 @@
-const request = require("request");
+const request = require("request"),
+      mdns = require('mdns-js');
 
-var Service,
-    Characteristic;
+var	  API,
+	  Accessory,
+	  Characteristic,
+	  Service;
 
 var cookieJar = request.jar();
 
 module.exports = function(homebridge) {
-    Service = homebridge.hap.Service;
-    Characteristic = homebridge.hap.Characteristic;
+	API = homebridge;
     Accessory = homebridge.hap.Accessory;
+    Characteristic = homebridge.hap.Characteristic;
+    Service = homebridge.hap.Service;
 
     homebridge.registerAccessory("homebridge-ismartgate", "iSmartGate", iSmartGate);
 };
@@ -16,30 +20,18 @@ module.exports = function(homebridge) {
 function iSmartGate(log, config) {
     this.log = log;
     this.name = config["name"] || "iSmartGate Temperature";
-    this.hostname = config["hostname"];
     this.username = config["username"];
     this.password = config["password"];
     this.response = null;
-    this.debug = config["debug"] || false;
 
     this.CurrentTemperature = null;
     this.BatteryLevel = null;
-
-	// Set a timer to refresh the data every 10 minutes
-	setInterval(function() {
-		this._refresh();
-	}.bind(this), 600000);
-
-	// Set a timer to refresh the login token every 3 hours
-	setInterval(function() {
-		this._login();
-	}.bind(this), 10800000);
 }
 
 iSmartGate.prototype = {
 
     identify: function(callback) {
-        this.log("identify");
+        this.log.info("identify");
         callback();
     },
 
@@ -57,14 +49,40 @@ iSmartGate.prototype = {
             .setCharacteristic(Characteristic.Name, this.name)
             .setCharacteristic(Characteristic.Manufacturer, "iSmartGate")
             .setCharacteristic(Characteristic.Model, "Temperature")
-            .setCharacteristic(Characteristic.FirmwareRevision, "1.2.0")
-            .setCharacteristic(Characteristic.SerialNumber, this.hostname);
+            .setCharacteristic(Characteristic.FirmwareRevision, "1.4.0")
+            .setCharacteristic(Characteristic.SerialNumber, this.username);
+		
+		// Start searching for the iSmartGate using mDNS
+		var browser = mdns.createBrowser("_hap._tcp");
+		browser.on('ready', function() { browser.discover(); });
+		browser.on('update', function(data) {
+			if(data['txt']) {
+				data['txt'].forEach(txt => {
+					txt = txt.split("=");
+					if(txt[0] == "md" && txt[1] == "iSmartGate") {
+						// Set the new hostname obtained from mDNS
+						this.hostname = data.addresses[0];
+						this.log.info("Found an iSmartGate at", this.hostname);
+					
+						// Login to the iSmartGate for the first time and refresh
+						setTimeout(function() {
+							this._login();
+						}.bind(this), 2500);
+					}
+				});
+			}
+		}.bind(this));
+		
+		// Set a timer to refresh the data every 10 minutes
+		setInterval(function() {
+			this._refresh();
+		}.bind(this), 600000);
 
-		// Login for the first time and refresh
-		setTimeout(function() {
+		// Set a timer to refresh the login token every 3 hours
+		setInterval(function() {
 			this._login();
-		}.bind(this), 2500);
-
+		}.bind(this), 10800000);
+	
 		// Return the Accessory
         return [
 			this.AccessoryInformation,
@@ -85,20 +103,20 @@ iSmartGate.prototype = {
 			jar: cookieJar
 		}, function(err, response, body) {
 			if (!err && response.statusCode == 200) {
-				if(this.debug) {this.log("Logged into iSmartGate");}
+				this.log.info("Logged into iSmartGate succesfully");
 
 				// Save the login headers
 				this.response = response;
-
+				
 				// Refresh the data
 				this._refresh();
 			}
-			else {this.log("Could not login.", err, response, body);}
+			else {this.log.error("Could not login.", err, response, body);}
 		}.bind(this));
 	},
 
     _refresh: function() {
-        if(this.debug) {this.log("Start refreshing temperature & battery");}
+       this.log.debug("Start refreshing temperature & battery");
 
         request.get({
             url: "http://" + this.hostname + "/isg/temperature.php?door=1",
@@ -108,15 +126,14 @@ iSmartGate.prototype = {
             if (!err && response.statusCode == 200) {
                 try {body = JSON.parse(body);}
                 catch(err) {
-					if(body == "Restricted Access") {this.log("Login token expired.");}
-					else {this.log("Could not connect.", "Check http://" + this.hostname + " to make sure the device is still reachable & no captcha is showing.");}
+					if(body == "Restricted Access") {this.log.error("Login token expired.");}
+					else {this.log.error("Could not connect.", "Check http://" + this.hostname + " to make sure the device is still reachable & no captcha is showing.");}
 				}
 
-                if(this.debug) {this.log("Successfully obtained temperature.", body);}
+                this.log.debug("Obtained status.", body);
 
-                // Find & set the CurrentTemperature
+                // Find the CurrentTemperature
                 this.CurrentTemperature = body[0] / 1000;
-                this.TemperatureSensor.getCharacteristic(Characteristic.CurrentTemperature).updateValue(this.CurrentTemperature);
 
                 // Find the BatteryLevel
                 switch (body[1]) {
@@ -128,29 +145,32 @@ iSmartGate.prototype = {
                     case "low":     this.BatteryLevel = 10;     break;
 
                     default:
-                        this.log("Unexpected BatteryLevel detected.", body[1], body);
+                        this.log.warning("Unexpected BatteryLevel detected.", body[1], body);
                         this.BatteryLevel = 0;
                     break;
                 }
+			
+				// Set the Current Temperature
+                this.TemperatureSensor.getCharacteristic(Characteristic.CurrentTemperature).updateValue(this.CurrentTemperature);
+			
+                // Set the Battery Level
+                this.BatteryService.setCharacteristic(Characteristic.BatteryLevel, this.BatteryLevel);
 
                 // Set the Status Low Battery
                 if(this.BatteryLevel <= 10) {this.BatteryService.setCharacteristic(Characteristic.StatusLowBattery, Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW);}
                 else {this.BatteryService.setCharacteristic(Characteristic.StatusLowBattery, Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL);}
-
-                // Set the Battery Level
-                this.BatteryService.setCharacteristic(Characteristic.BatteryLevel, this.BatteryLevel);
             }
-            else {this.log("Could not connect.", err, response, body);}
+            else {this.log.error("Could not connect.", err, response, body);}
         }.bind(this));
     },
 
     _getValue: function(CharacteristicName, callback) {
-        if(this.debug) {this.log("GET", CharacteristicName);}
+        this.log.debug("GET", CharacteristicName);
 		callback(null);
     },
 
     _setValue: function(CharacteristicName, value, callback) {
-        if(this.debug) {this.log("SET", CharacteristicName, value);}
+        this.log.debug("SET", CharacteristicName, value);
         callback();
     }
 

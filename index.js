@@ -49,7 +49,7 @@ iSmartGate.prototype = {
             .setCharacteristic(Characteristic.Name, this.name)
             .setCharacteristic(Characteristic.Manufacturer, "iSmartGate")
             .setCharacteristic(Characteristic.Model, "Temperature")
-            .setCharacteristic(Characteristic.FirmwareRevision, "1.4.0")
+            .setCharacteristic(Characteristic.FirmwareRevision, "1.4.2")
             .setCharacteristic(Characteristic.SerialNumber, this.username);
 		
 		// Start searching for the iSmartGate using mDNS
@@ -59,7 +59,7 @@ iSmartGate.prototype = {
 			if(data['txt']) {
 				data['txt'].forEach(txt => {
 					txt = txt.split("=");
-					if(txt[0] == "md" && txt[1] == "iSmartGate") {
+					if(txt[0] == "md" && txt[1] == "iSmartGate" && data.addresses[0] != this.hostname) {
 						// Set the new hostname obtained from mDNS
 						this.hostname = data.addresses[0];
 						this.log.info("Found an iSmartGate at", this.hostname);

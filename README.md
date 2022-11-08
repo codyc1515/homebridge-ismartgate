@@ -1,3 +1,6 @@
+# Update
+This plug-in is no longer supported. I am using Home Assistant now which has a native iSmartGate integration.
+
 # homebridge-ismartgate
 [Homebridge](https://github.com/nfarina/homebridge) plug-in for iSmartGate HomeKit devices to expose their Temperature & Battery services, which would otherwise be hidden.
 
